@@ -13,7 +13,7 @@ function generatePrompt() {
 - Debe tener aproximadamente ${wordCount} palabras (~${wordCount === '500' ? '2 minutos' : '5 minutos'}).
 - El tono del ponente debe ser: ${tone}.
 - Descripción del tema: ${description}.
-- Asegúrate de que el guion tenga una estructura clara y completa sin frases cortadas. No incluyas nombre de capítulos, notas entre paréntesis o corchetes, o cualquier cosa que no sea parte del programa ya que el narrador leerá el texto tal cual se genere.`;
+- El texto generado debe estar listo para leerse por un unico narrador. No debe incluir nombres de capítulos, notas entre paréntesis o corchetes, o cualquier palabra que no deba leerse en alto. Asegúrate de que el guion tenga una estructura clara y completa sin frases cortadas.`;
     
     // Muestra el prompt en un textarea para que el usuario pueda revisarlo
     document.getElementById('promptOutput').innerHTML = `<textarea id='promptText'>${prompt}</textarea>`;
