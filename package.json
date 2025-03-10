@@ -1,14 +1,15 @@
 {
   "name": "podcastia",
   "version": "1.0.0",
-  "description": "Aplicación para generar podcasts con IA",
+  "description": "Aplicación de Podcast",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
   "dependencies": {
-    "express": "^4.18.2",
-    "dotenv": "^16.0.3",
-    "node-fetch": "^2.6.7"
+    "express": "^4.18.2"
+  },
+  "engines": {
+    "node": ">=14.0.0"
   }
 }
