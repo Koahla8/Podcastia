@@ -1,65 +1,75 @@
-// Función para construir el prompt a partir de los datos del formulario
-function generatePrompt() {
-    const title = document.getElementById('title').value;
-    const description = document.getElementById('description').value;
-    const toneSelect = document.getElementById('tone').value;
-    const customTone = document.getElementById('customTone').value;
-    const wordCount = document.getElementById('wordCount').value;
+// server.js
+const express = require('express');
+const path = require('path');
+const fetch = require('node-fetch'); // Asegúrate de tener node-fetch instalado
 
-    const tone = toneSelect === "Otro" && customTone ? customTone : toneSelect;
-    const tokenLimit = wordCount === '500' ? 750 : 2000;
-    
-    const prompt = `Genera un guion completo para un podcast titulado "${title}".
-- Debe tener aproximadamente ${wordCount} palabras (~${wordCount === '500' ? '2 minutos' : '5 minutos'}).
-- El tono del ponente debe ser: ${tone}.
-- Descripción del tema: ${description}.
-- Asegúrate de que el guion tenga una estructura clara y completa sin frases cortadas. No incluyas nombre de capítulos, notas entre paréntesis o corchetes, o cualquier cosa que no sea parte del programa ya que el narrador leerá el texto tal cual se genere.`;
-    
-    document.getElementById('promptOutput').innerHTML = `<textarea id='promptText'>${prompt}</textarea>`;
-    
-    const generateScriptButton = document.createElement('button');
-    generateScriptButton.innerText = 'Generar Guion';
-    generateScriptButton.onclick = () => generateScript(prompt, tokenLimit);
-    document.getElementById('promptOutput').appendChild(generateScriptButton);
-}
+const app = express();
 
-// Función para enviar el prompt al backend y generar el guion
-function generateScript(prompt, tokenLimit) {
-    fetch('/api/generateScript', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ prompt, tokenLimit })
-    })
-    .then(response => response.json())
-    .then(data => {
-        const script = data.choices[0].message.content;
-        document.getElementById('scriptOutput').innerHTML = `<textarea id='scriptText'>${script}</textarea>`;
-        
-        const generateAudioButton = document.createElement('button');
-        generateAudioButton.innerText = 'Generar Audio';
-        generateAudioButton.onclick = () => generateAudio(script);
-        document.getElementById('scriptOutput').appendChild(generateAudioButton);
-    })
-    .catch(error => console.error('Error:', error));
-}
+// Middleware para parsear JSON
+app.use(express.json());
 
-// Función para enviar el script al backend y generar el audio
-function generateAudio(script) {
-    fetch('/api/generateAudio', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ script })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (!data.audioContent) {
-            throw new Error("No se recibió contenido de audio");
-        }
-        const audio = document.getElementById('audio');
-        audio.src = 'data:audio/mp3;base64,' + data.audioContent;
-        audio.play();
-    })
-    .catch(error => console.error('Error:', error));
-}
+// Sirve archivos estáticos desde la carpeta "public"
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Endpoint para generar el guion usando la API de OpenAI
+app.post('/api/generateScript', async (req, res) => {
+  try {
+    const { prompt, tokenLimit } = req.body;
+    if (!prompt) {
+      return res.status(400).json({ error: 'El prompt es requerido' });
+    }
+
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
+      },
+      body: JSON.stringify({
+        model: 'gpt-3.5-turbo',
+        messages: [{ role: 'user', content: prompt }],
+        max_tokens: tokenLimit
+      })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      return res.status(response.status).json(data);
+    }
+
+    res.json(data);
+  } catch (error) {
+    console.error('Error al generar el guion:', error);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
+});
+
+// Endpoint para generar audio a partir del script (ajusta según tu implementación)
+app.post('/api/generateAudio', async (req, res) => {
+  try {
+    const { script } = req.body;
+    if (!script) {
+      return res.status(400).json({ error: 'El script es requerido' });
+    }
+    
+    // Aquí debes implementar la lógica para generar el audio.
+    // Por ejemplo, podrías llamar a otro servicio de conversión de texto a voz.
+    // En este ejemplo, simplemente devolvemos un mensaje simulado.
+    res.json({ audioContent: "BASE64_AUDIO_SIMULADO" });
+  } catch (error) {
+    console.error('Error al generar el audio:', error);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
+});
+
+// Fallback: para cualquier otra ruta, devuelve index.html (útil para SPA)
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// Escucha en el puerto asignado por Vercel o 3000 por defecto
+const port = process.env.PORT || 3000;
+app.listen(port, () => {
+  console.log(`Servidor corriendo en el puerto ${port}`);
+});
