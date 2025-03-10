@@ -20,7 +20,7 @@ function generatePrompt() {
     
     // Crea y muestra el botón para generar el guion
     const generateScriptButton = document.createElement('button');
-    generateScriptButton.innerText = 'Generar Guion';
+    generateScriptButton.innerText = 'Generar Guion (puede tardar 10 segundos)';
     generateScriptButton.onclick = () => generateScript(prompt, tokenLimit);
     document.getElementById('promptOutput').appendChild(generateScriptButton);
 }
@@ -42,7 +42,7 @@ function generateScript(prompt, tokenLimit) {
         
         // Crea y muestra el botón para generar el audio a partir del guion
         const generateAudioButton = document.createElement('button');
-        generateAudioButton.innerText = 'Generar Audio';
+        generateAudioButton.innerText = 'Generar Audio (puede tardar 10 segundos)';
         generateAudioButton.onclick = () => generateAudio(script);
         document.getElementById('scriptOutput').appendChild(generateAudioButton);
     })
