@@ -4,7 +4,7 @@
     { "src": "server.js", "use": "@vercel/node" }
   ],
   "routes": [
-    { "src": "/api/(.*)", "dest": "/server.js" },  // Solo las rutas que empiecen con /api van al backend
-    { "src": "/(.*)", "dest": "/index.html" }       // Sirve el index.html directamente
+    { "src": "/api/(.*)", "dest": "/server.js" },  
+    { "src": "/(.*)", "dest": "/public/index.html" }  
   ]
 }
