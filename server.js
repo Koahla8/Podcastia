@@ -10,10 +10,19 @@ dotenv.config();
 const app = express();
 app.use(express.json());
 
-// Servir archivos estáticos (index.html, scripts.js, styles.css, etc.) desde la raíz del proyecto
+// Servir archivos estáticos (index.html, etc.)
 app.use(express.static(__dirname));
 
-// Ruta para servir el archivo `index.html` cuando se accede a la raíz `/`
+// Forzar que el CSS y JS se sirvan con el tipo MIME correcto
+app.get('/styles.css', (req, res) => {
+    res.type('text/css').sendFile(__dirname + '/styles.css');
+});
+
+app.get('/scripts.js', (req, res) => {
+    res.type('application/javascript').sendFile(__dirname + '/scripts.js');
+});
+
+// Ruta para servir el `index.html` explícitamente en la raíz `/`
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/index.html');
 });
@@ -73,7 +82,6 @@ app.post('/api/generateAudio', async (req, res) => {
     }
 });
 
-// 🔹 IMPORTANTE: No uses app.listen() en Vercel
-// Vercel maneja la ejecución automáticamente, así que exportamos la app:
+// Exportar la aplicación para que Vercel la maneje
 module.exports = app;
 
