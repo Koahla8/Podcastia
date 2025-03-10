@@ -1,7 +1,8 @@
-// server.js
 const express = require('express');
 const path = require('path');
 const fetch = require('node-fetch'); // Asegúrate de tener node-fetch instalado
+const textToSpeech = require('@google-cloud/text-to-speech'); // Google TTS
+const { Writable } = require('stream');
 
 const app = express();
 
@@ -10,6 +11,10 @@ app.use(express.json());
 
 // Sirve archivos estáticos desde la carpeta "public"
 app.use(express.static(path.join(__dirname, 'public')));
+
+// Inicializa Google Text-to-Speech
+const googleCredentials = JSON.parse(process.env.GOOGLE_CREDENTIALS);
+const ttsClient = new textToSpeech.TextToSpeechClient({ credentials: googleCredentials });
 
 // Endpoint para generar el guion usando la API de OpenAI
 app.post('/api/generateScript', async (req, res) => {
@@ -45,18 +50,28 @@ app.post('/api/generateScript', async (req, res) => {
   }
 });
 
-// Endpoint para generar audio a partir del script (ajusta según tu implementación)
+// Endpoint para generar audio con Google Text-to-Speech
 app.post('/api/generateAudio', async (req, res) => {
   try {
     const { script } = req.body;
     if (!script) {
       return res.status(400).json({ error: 'El script es requerido' });
     }
-    
-    // Aquí debes implementar la lógica para generar el audio.
-    // Por ejemplo, podrías llamar a otro servicio de conversión de texto a voz.
-    // En este ejemplo, simplemente devolvemos un mensaje simulado.
-    res.json({ audioContent: "BASE64_AUDIO_SIMULADO" });
+
+    // Configuración de la solicitud a Google TTS
+    const request = {
+      input: { text: script },
+      voice: { languageCode: 'es-ES', ssmlGender: 'NEUTRAL' }, // Ajusta el idioma y género según prefieras
+      audioConfig: { audioEncoding: 'MP3' }
+    };
+
+    // Llamada a la API de Google TTS
+    const [response] = await ttsClient.synthesizeSpeech(request);
+
+    // Convertir el audio a Base64 para enviarlo como respuesta
+    const audioBase64 = response.audioContent.toString('base64');
+
+    res.json({ audioContent: audioBase64 });
   } catch (error) {
     console.error('Error al generar el audio:', error);
     res.status(500).json({ error: 'Error interno del servidor' });
