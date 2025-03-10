@@ -1,7 +1,7 @@
 // server.js
 const express = require('express');
 const path = require('path');
-const fetch = require('node-fetch'); // Asegúrate de instalar node-fetch (versión 2.x para CommonJS)
+const fetch = require('node-fetch'); // Asegúrate de tener node-fetch instalado
 
 const app = express();
 
@@ -11,24 +11,24 @@ app.use(express.json());
 // Sirve archivos estáticos desde la carpeta "public"
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Endpoint para llamar a la API de OpenAI
-app.post('/api/openai', async (req, res) => {
+// Endpoint para generar el guion usando la API de OpenAI
+app.post('/api/generateScript', async (req, res) => {
   try {
-    const { prompt } = req.body;
+    const { prompt, tokenLimit } = req.body;
     if (!prompt) {
       return res.status(400).json({ error: 'El prompt es requerido' });
     }
 
-    const response = await fetch('https://api.openai.com/v1/completions', {
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
       },
       body: JSON.stringify({
-        model: 'text-davinci-003',
-        prompt: prompt,
-        max_tokens: 50
+        model: 'gpt-3.5-turbo',
+        messages: [{ role: 'user', content: prompt }],
+        max_tokens: tokenLimit
       })
     });
 
@@ -40,22 +40,35 @@ app.post('/api/openai', async (req, res) => {
 
     res.json(data);
   } catch (error) {
-    console.error('Error al llamar a OpenAI:', error);
+    console.error('Error al generar el guion:', error);
     res.status(500).json({ error: 'Error interno del servidor' });
   }
 });
 
-// Otro endpoint de ejemplo (si lo necesitas)
-app.get('/api/data', (req, res) => {
-  res.json({ message: "Hola, este es el endpoint de la API" });
+// Endpoint para generar audio a partir del script (ajusta según tu implementación)
+app.post('/api/generateAudio', async (req, res) => {
+  try {
+    const { script } = req.body;
+    if (!script) {
+      return res.status(400).json({ error: 'El script es requerido' });
+    }
+    
+    // Aquí debes implementar la lógica para generar el audio.
+    // Por ejemplo, podrías llamar a otro servicio de conversión de texto a voz.
+    // En este ejemplo, simplemente devolvemos un mensaje simulado.
+    res.json({ audioContent: "BASE64_AUDIO_SIMULADO" });
+  } catch (error) {
+    console.error('Error al generar el audio:', error);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
 });
 
-// Catch-all: para cualquier otra ruta, devuelve index.html (útil para SPA)
+// Fallback: para cualquier otra ruta, devuelve index.html (útil para SPA)
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Escucha en el puerto que asigne Vercel o en el 3000 por defecto
+// Escucha en el puerto asignado por Vercel o 3000 por defecto
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
   console.log(`Servidor corriendo en el puerto ${port}`);
