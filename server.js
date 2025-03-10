@@ -10,13 +10,8 @@ dotenv.config();
 const app = express();
 app.use(express.json());
 
-// Servir archivos estáticos (index.html, etc.)
-app.use(express.static(__dirname));
-
-// Ruta para servir el `index.html` explícitamente en la raíz `/`
-app.get('/', (req, res) => {
-    res.sendFile(__dirname + '/index.html');
-});
+// Servir archivos estáticos desde la carpeta /public
+app.use(express.static('public'));
 
 // Endpoint para generar el guion usando OpenAI
 app.post('/api/generateScript', async (req, res) => {
