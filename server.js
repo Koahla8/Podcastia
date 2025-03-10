@@ -1,39 +1,31 @@
 const express = require('express');
 const path = require('path');
-const fetch = require('node-fetch'); // Asegúrate de tener node-fetch instalado
-const textToSpeech = require('@google-cloud/text-to-speech'); // Google TTS
-const { Writable } = require('stream');
+const fetch = require('node-fetch');
 
 const app = express();
-
-// Middleware para parsear JSON
 app.use(express.json());
-
-// Sirve archivos estáticos desde la carpeta "public"
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Inicializa Google Text-to-Speech
-const googleCredentials = JSON.parse(process.env.GOOGLE_CREDENTIALS);
-const ttsClient = new textToSpeech.TextToSpeechClient({ credentials: googleCredentials });
+// API Key de Google (desde las variables de entorno)
+const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
 
-// Endpoint para generar el guion usando la API de OpenAI
-app.post('/api/generateScript', async (req, res) => {
+// Endpoint para convertir texto en audio con Google TTS
+app.post('/api/generateAudio', async (req, res) => {
   try {
-    const { prompt, tokenLimit } = req.body;
-    if (!prompt) {
-      return res.status(400).json({ error: 'El prompt es requerido' });
+    const { script } = req.body;
+    if (!script) {
+      return res.status(400).json({ error: 'El script es requerido' });
     }
 
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    const response = await fetch(`https://texttospeech.googleapis.com/v1/text:synthesize?key=${GOOGLE_API_KEY}`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: 'gpt-3.5-turbo',
-        messages: [{ role: 'user', content: prompt }],
-        max_tokens: tokenLimit
+        input: { text: script },
+        voice: { languageCode: 'es-ES', ssmlGender: 'FEMALE' },
+        audioConfig: { audioEncoding: 'MP3' }
       })
     });
 
@@ -45,46 +37,19 @@ app.post('/api/generateScript', async (req, res) => {
 
     res.json(data);
   } catch (error) {
-    console.error('Error al generar el guion:', error);
-    res.status(500).json({ error: 'Error interno del servidor' });
-  }
-});
-
-// Endpoint para generar audio con Google Text-to-Speech
-app.post('/api/generateAudio', async (req, res) => {
-  try {
-    const { script } = req.body;
-    if (!script) {
-      return res.status(400).json({ error: 'El script es requerido' });
-    }
-
-    // Configuración de la solicitud a Google TTS
-    const request = {
-      input: { text: script },
-      voice: { languageCode: 'es-ES', ssmlGender: 'NEUTRAL' }, // Ajusta el idioma y género según prefieras
-      audioConfig: { audioEncoding: 'MP3' }
-    };
-
-    // Llamada a la API de Google TTS
-    const [response] = await ttsClient.synthesizeSpeech(request);
-
-    // Convertir el audio a Base64 para enviarlo como respuesta
-    const audioBase64 = response.audioContent.toString('base64');
-
-    res.json({ audioContent: audioBase64 });
-  } catch (error) {
     console.error('Error al generar el audio:', error);
     res.status(500).json({ error: 'Error interno del servidor' });
   }
 });
 
-// Fallback: para cualquier otra ruta, devuelve index.html (útil para SPA)
+// Fallback para servir el frontend
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Escucha en el puerto asignado por Vercel o 3000 por defecto
+// Arrancar servidor
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
   console.log(`Servidor corriendo en el puerto ${port}`);
 });
+
