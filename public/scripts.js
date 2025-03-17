@@ -1,6 +1,6 @@
 // Función para construir el prompt a partir de los datos del formulario
 function generatePrompt() {
-    const title = document.getElementById('title').value;
+    const format = document.getElementById('format').value;
     const description = document.getElementById('description').value;
     const toneSelect = document.getElementById('tone').value;
     const customTone = document.getElementById('customTone').value;
@@ -9,7 +9,7 @@ function generatePrompt() {
     const tone = toneSelect === "Otro" && customTone ? customTone : toneSelect;
     const tokenLimit = wordCount === '500' ? 750 : 2000;
     
-    const prompt = `Genera un guion completo para un podcast titulado "${title}".
+    const prompt = `Genera un guion completo para un ${format}.
 - Debe tener aproximadamente ${wordCount} palabras (~${wordCount === '500' ? '2 minutos' : '5 minutos'}).
 - El tono del ponente debe ser: ${tone}.
 - Descripción del tema: ${description}.
@@ -72,3 +72,4 @@ function generateAudio(script) {
     })
     .catch(error => console.error('Error:', error));
 }
+
