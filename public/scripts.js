@@ -43,7 +43,11 @@ function generateScript(prompt, tokenLimit) {
         // Crea y muestra el botón para generar el audio a partir del guion
         const generateAudioButton = document.createElement('button');
         generateAudioButton.innerText = 'Generar Audio';
-        generateAudioButton.onclick = () => generateAudio(script);
+        generateAudioButton.onclick = () => {
+            // Se toma el contenido actual del textarea, en caso de que el usuario lo haya modificado.
+            const updatedScript = document.getElementById('scriptText').value;
+            generateAudio(updatedScript);
+        };
         document.getElementById('scriptOutput').appendChild(generateAudioButton);
     })
     .catch(error => console.error('Error:', error));
