@@ -20,7 +20,7 @@ header {
     margin: 20px;
 }
 
-/* Ahora se usan las clases .left y .bottom para la disposición en columna */
+/* Se usan las clases .left y .bottom para la disposición en columna */
 .left, .bottom {
     background: white;
     padding: 20px;
