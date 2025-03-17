@@ -1,48 +1,70 @@
-document.addEventListener('DOMContentLoaded', function() {
-  // Al hacer clic en el botón, se obtiene el contenido actual del textarea
-  document.getElementById('generateTTS').addEventListener('click', function() {
-    var scriptText = document.getElementById('script').value.trim();
-    
-    if (scriptText === "") {
-      alert("Por favor, ingresa el texto del guion.");
-      return;
-    }
-    
-    // Se envía el contenido actual (último texto) a la API de Google TTS
-    sendToGoogleTTS(scriptText);
-  });
+// Función para construir el prompt a partir de los datos del formulario
+function generatePrompt() {
+    const title = document.getElementById('title').value;
+    const description = document.getElementById('description').value;
+    const toneSelect = document.getElementById('tone').value;
+    const customTone = document.getElementById('customTone').value;
+    const wordCount = document.getElementById('wordCount').value;
 
-  // Evento para el formulario de acceso
-  document.getElementById('loginForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    var username = document.getElementById('username').value.trim();
-    var password = document.getElementById('password').value.trim();
+    const tone = toneSelect === "Otro" && customTone ? customTone : toneSelect;
+    const tokenLimit = wordCount === '500' ? 750 : 2000;
     
-    // Lógica de autenticación (a implementar según tus necesidades)
-    console.log("Usuario:", username, "Contraseña:", password);
-    alert("Inicio de sesión enviado (simulación).");
-  });
-});
+    const prompt = `Genera un guion completo para un podcast titulado "${title}".
+- Debe tener aproximadamente ${wordCount} palabras (~${wordCount === '500' ? '2 minutos' : '5 minutos'}).
+- El tono del ponente debe ser: ${tone}.
+- Descripción del tema: ${description}.
+- Asegúrate de que el guion tenga una estructura clara y completa sin frases cortadas. No incluyas nombre de capítulos, notas entre paréntesis o corchetes, o cualquier cosa que no sea parte del programa ya que el narrador leerá el texto tal cual se genere.`;
+    
+    // Muestra el prompt en un textarea para que el usuario pueda revisarlo
+    document.getElementById('promptOutput').innerHTML = `<textarea id='promptText'>${prompt}</textarea>`;
+    
+    // Crea y muestra el botón para generar el guion
+    const generateScriptButton = document.createElement('button');
+    generateScriptButton.innerText = 'Generar Guion';
+    generateScriptButton.onclick = () => generateScript(prompt, tokenLimit);
+    document.getElementById('promptOutput').appendChild(generateScriptButton);
+}
 
-// Función para enviar el texto a la API de Google TTS
-function sendToGoogleTTS(text) {
-  console.log("Enviando a Google TTS:", text);
-  
-  // Ejemplo de llamada a la API (reemplaza la URL y parámetros según tu configuración)
-  fetch('https://api.googletts.example.com/convert', { // URL de ejemplo
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({ text: text })
-  })
-  .then(response => response.json())
-  .then(data => {
-    console.log("Respuesta de Google TTS:", data);
-    alert("Audio generado correctamente.");
-  })
-  .catch(error => {
-    console.error("Error al enviar a Google TTS:", error);
-    alert("Error al generar el audio.");
-  });
+// Función para enviar el prompt al backend y generar el guion
+function generateScript(prompt, tokenLimit) {
+    fetch('/api/generateScript', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ prompt, tokenLimit })
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Se asume que el endpoint devuelve data.choices[0].message.content
+        const script = data.choices[0].message.content;
+        document.getElementById('scriptOutput').innerHTML = `<textarea id='scriptText'>${script}</textarea>`;
+        
+        // Crea y muestra el botón para generar el audio a partir del guion
+        const generateAudioButton = document.createElement('button');
+        generateAudioButton.innerText = 'Generar Audio';
+        generateAudioButton.onclick = () => generateAudio(script);
+        document.getElementById('scriptOutput').appendChild(generateAudioButton);
+    })
+    .catch(error => console.error('Error:', error));
+}
+
+// Función para enviar el script al backend y generar el audio
+function generateAudio(script) {
+    fetch('/api/generateAudio', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ script })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (!data.audioContent) {
+            throw new Error("No se recibió contenido de audio");
+        }
+        // Asume que el audio se devuelve en formato Base64
+        const audio = document.getElementById('audio');
+        audio.src = 'data:audio/mp3;base64,' + data.audioContent;
+        audio.play();
+    })
+    .catch(error => console.error('Error:', error));
 }
