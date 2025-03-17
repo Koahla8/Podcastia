@@ -72,4 +72,3 @@ function generateAudio(script) {
     })
     .catch(error => console.error('Error:', error));
 }
-
