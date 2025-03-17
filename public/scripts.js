@@ -1,7 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
-  // Evento para enviar el texto actual a la API de Google TTS
+  // Al hacer clic en el botón, se obtiene el contenido actual del textarea
   document.getElementById('generateTTS').addEventListener('click', function() {
-    // Se obtiene el contenido actual del textarea (último texto que el usuario ve)
     var scriptText = document.getElementById('script').value.trim();
     
     if (scriptText === "") {
@@ -9,21 +8,19 @@ document.addEventListener('DOMContentLoaded', function() {
       return;
     }
     
-    // Llamada a la función que envía el texto a Google TTS
+    // Se envía el contenido actual (último texto) a la API de Google TTS
     sendToGoogleTTS(scriptText);
   });
 
-  // Evento para el formulario de login (acceso)
+  // Evento para el formulario de acceso
   document.getElementById('loginForm').addEventListener('submit', function(e) {
     e.preventDefault();
     var username = document.getElementById('username').value.trim();
     var password = document.getElementById('password').value.trim();
     
-    // Aquí deberías implementar la lógica de autenticación (envío de datos, validación, etc.)
+    // Lógica de autenticación (a implementar según tus necesidades)
     console.log("Usuario:", username, "Contraseña:", password);
-    
-    // Ejemplo de respuesta
-    alert("Inicio de sesión enviado (la función de autenticación aún está pendiente).");
+    alert("Inicio de sesión enviado (simulación).");
   });
 });
 
@@ -32,7 +29,7 @@ function sendToGoogleTTS(text) {
   console.log("Enviando a Google TTS:", text);
   
   // Ejemplo de llamada a la API (reemplaza la URL y parámetros según tu configuración)
-  fetch('https://api.googletts.example.com/convert', {
+  fetch('https://api.googletts.example.com/convert', { // URL de ejemplo
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
@@ -42,7 +39,6 @@ function sendToGoogleTTS(text) {
   .then(response => response.json())
   .then(data => {
     console.log("Respuesta de Google TTS:", data);
-    // Aquí puedes implementar la reproducción del audio o mostrar un mensaje de éxito
     alert("Audio generado correctamente.");
   })
   .catch(error => {
@@ -50,4 +46,3 @@ function sendToGoogleTTS(text) {
     alert("Error al generar el audio.");
   });
 }
-
