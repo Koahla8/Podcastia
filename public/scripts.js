@@ -22,14 +22,16 @@ function generatePrompt() {
 - Debe tener aproximadamente ${wordCount} palabras (~${wordCount === '500' ? '2 minutos' : '4 minutos'}).
 - El tono del ponente debe ser: ${tone}.
 - Descripción del tema: ${description}.
-- Asegúrate de que el guion tenga una estructura clara y completa sin frases cortadas. No incluyas nombre de capítulos, notas entre paréntesis o corchetes, o cualquier cosa que no sea parte del programa ya que el narrador leerá el texto tal cual se genere.`;
-    
+- Todo el texto debe ser parte de la locución, por tanto no de be incluir notas entre parentisis, titulos de capitulos o secciones entre paréntesis o corchetes.
+- Tampoco cualquier texto o comentario sobre la musica de fondo o cualquier comentario que no sea parte del programa ya que el narrador leerá el texto tal cual se genere.  
+- Asegúrate de que el guion tenga una estructura clara y completa sin frases cortadas.  `;
+  
     // Muestra el prompt en un textarea para que el usuario pueda revisarlo
     document.getElementById('promptOutput').innerHTML = `<textarea id='promptText'>${prompt}</textarea>`;
     
     // Crea y muestra el botón para generar el guion
     const generateScriptButton = document.createElement('button');
-    generateScriptButton.innerText = 'Generar Guion';
+    generateScriptButton.innerText = 'Generar Guion (puede tardar 10 segundos)';
     generateScriptButton.onclick = () => generateScript(prompt, tokenLimit);
     document.getElementById('promptOutput').appendChild(generateScriptButton);
 }
@@ -51,7 +53,7 @@ function generateScript(prompt, tokenLimit) {
         
         // Crea y muestra el botón para generar el audio a partir del guion
         const generateAudioButton = document.createElement('button');
-        generateAudioButton.innerText = 'Generar Audio';
+        generateAudioButton.innerText = 'Generar Audio (puede tardar 10 segundos)';
         generateAudioButton.onclick = () => {
             // Se toma el contenido actual del textarea, en caso de que el usuario lo haya modificado.
             const updatedScript = document.getElementById('scriptText').value;
