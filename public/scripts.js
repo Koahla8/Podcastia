@@ -5,12 +5,21 @@ function generatePrompt() {
     const toneSelect = document.getElementById('tone').value;
     const customTone = document.getElementById('customTone').value;
     const wordCount = document.getElementById('wordCount').value;
-
+    
     const tone = toneSelect === "Otro" && customTone ? customTone : toneSelect;
-    const tokenLimit = wordCount === '500' ? 750 : 2000;
+    
+    // Ajuste del límite de tokens según la opción de palabras:
+    // 500 palabras: promedio de 700-750 tokens (usamos 725)
+    // 1000 palabras: promedio de 1500-1600 tokens (usamos 1550)
+    let tokenLimit;
+    if (wordCount === '500') {
+        tokenLimit = 725;
+    } else if (wordCount === '1000') {
+        tokenLimit = 1550;
+    }
     
     const prompt = `Genera un guion completo para un ${format}.
-- Debe tener aproximadamente ${wordCount} palabras (~${wordCount === '500' ? '2 minutos' : '5 minutos'}).
+- Debe tener aproximadamente ${wordCount} palabras (~${wordCount === '500' ? '2 minutos' : '4 minutos'}).
 - El tono del ponente debe ser: ${tone}.
 - Descripción del tema: ${description}.
 - Asegúrate de que el guion tenga una estructura clara y completa sin frases cortadas. No incluyas nombre de capítulos, notas entre paréntesis o corchetes, o cualquier cosa que no sea parte del programa ya que el narrador leerá el texto tal cual se genere.`;
@@ -20,7 +29,7 @@ function generatePrompt() {
     
     // Crea y muestra el botón para generar el guion
     const generateScriptButton = document.createElement('button');
-    generateScriptButton.innerText = 'Generar Guion  (puede tardar 10 segundos)';
+    generateScriptButton.innerText = 'Generar Guion';
     generateScriptButton.onclick = () => generateScript(prompt, tokenLimit);
     document.getElementById('promptOutput').appendChild(generateScriptButton);
 }
@@ -42,7 +51,7 @@ function generateScript(prompt, tokenLimit) {
         
         // Crea y muestra el botón para generar el audio a partir del guion
         const generateAudioButton = document.createElement('button');
-        generateAudioButton.innerText = 'Generar Audio (puede tardar 10 segundos)';
+        generateAudioButton.innerText = 'Generar Audio';
         generateAudioButton.onclick = () => {
             // Se toma el contenido actual del textarea, en caso de que el usuario lo haya modificado.
             const updatedScript = document.getElementById('scriptText').value;
