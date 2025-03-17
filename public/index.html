@@ -3,70 +3,48 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Generador de Podcasts con IA</title>
-  <link rel="stylesheet" href="styles.css">
-  <script src="scripts.js" defer></script>
+  <title>Podcastia - Genera tu Guion</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <header>
-    <h1>PodcastIA - Generador de Podcasts, Audioguías y Cursos con IA</h1>
-    <p>Usa la inteligencia artificial para crear guiones y convertirlos en audio.</p>
+    <h1>Podcastia</h1>
+    <nav>
+      <ul>
+        <li><a href="#form">Generar Guion</a></li>
+        <li><a href="#registro">Acceso</a></li>
+      </ul>
+    </nav>
   </header>
   <main>
-    <section class="container">
-      <div class="left">
-        <h2>Generar sin Registro</h2>
-        <form id="podcastForm">
-          <div class="form-group">
-            <label for="title">Título del Podcast:</label>
-            <input type="text" id="title" name="title" required>
-          </div>
-          <div class="form-group">
-            <label for="wordCount">Número de palabras:</label>
-            <select id="wordCount" name="wordCount">
-              <option value="500">500 palabras (~2 minutos)</option>
-              <option value="1400">1400 palabras (~5 minutos)</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label for="tone">Tono del Ponente:</label>
-            <select id="tone" name="tone">
-              <option value="Técnico">Técnico</option>
-              <option value="Informal">Informal</option>
-              <option value="Para niños">Para niños</option>
-              <option value="Otro">Otro (Especificar abajo)</option>
-            </select>
-            <input type="text" id="customTone" name="customTone" placeholder="Especifica un tono...">
-          </div>
-          <div class="form-group">
-            <label for="description">Descripción:</label>
-            <textarea id="description" name="description"></textarea>
-          </div>
-          <button type="button" onclick="generatePrompt()">Generar Prompt</button>
-        </form>
-        <div id="promptOutput"></div>
-        <div id="scriptOutput"></div>
-        <div id="audioOutput"></div>
-        <audio id="audio" controls></audio>
-      </div>
-      <div class="right">
-        <h2>Registro / Acceso</h2>
-        <form id="loginForm">
-          <div class="form-group">
-            <label for="username">Usuario:</label>
-            <input type="text" id="username" name="username" required>
-          </div>
-          <div class="form-group">
-            <label for="password">Contraseña:</label>
-            <input type="password" id="password" name="password" required>
-          </div>
-          <button type="submit">Acceder</button>
-        </form>
-        <div id="userRepo">
-          <h3>Mis Creaciones</h3>
+    <!-- Sección para generar el guion -->
+    <section id="form" class="form-container">
+      <h2>Genera tu Guion</h2>
+      <p>Escribe o modifica el guion en el siguiente cuadro y presiona el botón para enviarlo a Google Text-to-Speech.</p>
+      <textarea id="script" placeholder="Escribe o modifica el guion aquí..."></textarea>
+      <button id="generateTTS">Enviar a Google TTS</button>
+    </section>
+
+    <!-- Sección de registro o acceso -->
+    <section id="registro" class="register-container">
+      <h2>Acceso con Registro</h2>
+      <form id="loginForm">
+        <div class="form-group">
+          <label for="username">Usuario</label>
+          <input type="text" id="username" name="username" placeholder="Ingresa tu usuario" required>
         </div>
-      </div>
+        <div class="form-group">
+          <label for="password">Contraseña</label>
+          <input type="password" id="password" name="password" placeholder="Ingresa tu contraseña" required>
+        </div>
+        <button type="submit">Iniciar Sesión</button>
+      </form>
     </section>
   </main>
+  <footer>
+    <p>&copy; 2025 Podcastia. Todos los derechos reservados.</p>
+  </footer>
+  <script src="script.js"></script>
 </body>
 </html>
+
